@@ -19,5 +19,18 @@
   "bugs": {
     "url": "https://github.com/tabatkins/railroad-diagrams/issues"
   },
-  "homepage": "https://github.com/tabatkins/railroad-diagrams"
+  "homepage": "https://github.com/tabatkins/railroad-diagrams",
+  "scripts": {
+    "build": "npx babel -o railroad.umd.js railroad.js"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.17.10",
+    "@babel/core": "^7.18.5",
+    "@babel/plugin-transform-modules-umd": "^7.18.0"
+  },
+  "babel": {
+    "plugins": [
+      "@babel/plugin-transform-modules-umd"
+    ]
+  }
 }
