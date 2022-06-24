@@ -45,3 +45,12 @@ svg.railroad-diagram path.diagram-text {
 svg.railroad-diagram g.diagram-text:hover path.diagram-text {
     fill: #eee;
 }
+div.railroad-diagram-tooltip {
+    position: absolute;
+    display: none;
+    background: whitesmoke;
+    border: 2px solid black;
+    border-radius: 5px;
+    padding: 5px 10px;
+    max-width: 720px;
+}

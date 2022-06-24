@@ -9,18 +9,13 @@ __TITLE__
   body {
     background-color: hsl(30, 20%, 95%);
   }
-  svg.railroad-diagram rect {
-    fill: rgb(245, 245, 245);
-  }
-  svg.railroad-diagram g.with-metrics rect {
-    fill: rgb(204, 255, 204);
-  }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/zyguan/railroad-diagrams@perfmap/railroad.umd.js"></script>
 </head>
 <body>
 
+<div id="railroad-tooltip" class="railroad-diagram-tooltip"></div>
 <div id="CONTENT"></div>
 <script id="MARKDOWN" type="text/plain">
 __MARKDOWN__
@@ -43,7 +38,7 @@ __MARKDOWN__
         const id = `railroad-${window.crypto.getRandomValues(new Uint32Array(1))[0].toString(16)}`;
         this.postActions.push(function() {
           const src = document.createElement('script');
-          src.innerHTML = `${text}.addTo(document.getElementById('${id}'))`;
+          src.innerHTML = `${text}.addTo(document.getElementById('${id}'), {tooltip: document.getElementById('railroad-tooltip')})`;
           document.body.appendChild(src);
         });
         return `<div id=${id}></div>\n`;

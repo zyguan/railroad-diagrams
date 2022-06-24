@@ -114,25 +114,26 @@
     format(x, y, width) {// Virtual
     }
 
-    addTo(parent) {
+    addTo(parent, opts) {
       if (parent instanceof FakeSVG) {
         parent.children.push(this);
         return this;
       } else {
-        var svg = this.toSVG();
+        var svg = this.toSVG(opts);
         parent.appendChild(svg);
         return svg;
       }
     }
 
-    toSVG() {
+    toSVG(opts) {
       var el = SVG(this.tagName, this.attrs);
+      this.onCreate(el, unnull(opts, {}));
 
       if (typeof this.children == 'string') {
         el.textContent = this.children;
       } else {
         this.children.forEach(function (e) {
-          el.appendChild(e.toSVG());
+          el.appendChild(e.toSVG(opts));
         });
       }
 
@@ -165,6 +166,8 @@
     walk(cb) {
       cb(this);
     }
+
+    onCreate(el, opts) {}
 
   }
 
@@ -340,22 +343,22 @@
       return this;
     }
 
-    addTo(parent) {
+    addTo(parent, opts) {
       if (!parent) {
         var scriptTag = document.getElementsByTagName('script');
         scriptTag = scriptTag[scriptTag.length - 1];
         parent = scriptTag.parentNode;
       }
 
-      return super.addTo.call(this, parent);
+      return super.addTo.call(this, parent, opts);
     }
 
-    toSVG() {
+    toSVG(opts) {
       if (!this.formatted) {
         this.format();
       }
 
-      return super.toSVG.call(this);
+      return super.toSVG.call(this, opts);
     }
 
     toString() {
@@ -1259,6 +1262,7 @@
     constructor(text, {
       href,
       title,
+      tooltip,
       cls
     } = {}) {
       super('g', {
@@ -1267,6 +1271,7 @@
       this.text = "" + text;
       this.href = href;
       this.title = title;
+      this.tooltip = tooltip;
       this.cls = cls;
       this.width = this.text.length * Options.CHAR_WIDTH + 20;
       /* Assume that each char is .5em, and that the em is 16px */
@@ -1307,6 +1312,10 @@
       return this;
     }
 
+    onCreate(el, opts) {
+      setupTooltip(el, opts.tooltip, this.tooltip);
+    }
+
   }
 
   _exports.Terminal = Terminal;
@@ -1317,6 +1326,7 @@
     constructor(text, {
       href,
       title,
+      tooltip,
       cls = ""
     } = {}) {
       super('g', {
@@ -1325,6 +1335,7 @@
       this.text = "" + text;
       this.href = href;
       this.title = title;
+      this.tooltip = tooltip;
       this.cls = cls;
       this.width = this.text.length * Options.CHAR_WIDTH + 20;
       this.height = 0;
@@ -1361,6 +1372,10 @@
       return this;
     }
 
+    onCreate(el, opts) {
+      setupTooltip(el, opts.tooltip, this.tooltip);
+    }
+
   }
 
   _exports.NonTerminal = NonTerminal;
@@ -1371,6 +1386,7 @@
     constructor(text, {
       href,
       title,
+      tooltip,
       cls = ""
     } = {}) {
       super('g', {
@@ -1379,6 +1395,7 @@
       this.text = "" + text;
       this.href = href;
       this.title = title;
+      this.tooltip = tooltip;
       this.cls = cls;
       this.width = this.text.length * Options.COMMENT_CHAR_WIDTH + 10;
       this.height = 0;
@@ -1408,6 +1425,10 @@
       }, [text]).addTo(this);else text.addTo(this);
       if (this.title) new FakeSVG('title', {}, this.title).addTo(this);
       return this;
+    }
+
+    onCreate(el, opts) {
+      setupTooltip(el, opts.tooltip, this.tooltip);
     }
 
   }
@@ -1483,6 +1504,23 @@
   _exports.Block = Block;
 
   funcs.Block = (...args) => new Block(...args);
+
+  function setupTooltip(svg, tooltip, content) {
+    if (!tooltip || !content) {
+      return;
+    }
+
+    svg.addEventListener("mousemove", ev => {
+      tooltip.innerHTML = content;
+      tooltip.style.display = "block";
+      tooltip.style.position = 'absolute';
+      tooltip.style.left = ev.pageX + 15 + 'px';
+      tooltip.style.top = ev.pageY + 15 + 'px';
+    });
+    svg.addEventListener("mouseout", () => {
+      tooltip.style.display = "none";
+    });
+  }
 
   function unnull(...args) {
     // Return the first value that isn't undefined.
